@@ -14,6 +14,8 @@ gunicorn = "^21.2.0"
 dj-database-url = "^2.0.0"
 pillow = "^10.0.0"
 python-telegram-bot = "13.15"
+django-phonenumber-field = "^7.1.0"
+django-phonenumbers = "^1.0.1"
 
 
 [build-system]
