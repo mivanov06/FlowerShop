@@ -12,8 +12,8 @@ https://github.com/Stranix/FlowerShop.git
 poetry install
 ```
  - Задать обязательные переменные окружения
-    - SECRET_KEY - секретный ключ проекта. Получить можно например [здесь](https://djecrety.ir/)
-    - TG_BOT_TOKEN - токен телеграм бота. Получить можно у https://t.me/BotFather
+    - `SECRET_KEY` - секретный ключ проекта. Получить можно например [здесь](https://djecrety.ir/)
+    - `TG_BOT_TOKEN` - токен телеграм бота. Получить можно у https://t.me/BotFather
  - Запустить бота
 ```shell
 poetry run python namage.py tg_bot
