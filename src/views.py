@@ -10,7 +10,7 @@ def catalog(request):
 
 
 def recommendations(request):
-    pass
+    return render(request, template_name='pages/recommendations.html')
 
 
 def contacts(request):
