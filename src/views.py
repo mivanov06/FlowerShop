@@ -2,11 +2,11 @@ from django.shortcuts import render
 
 
 def index(request):
-    return render(request, template_name='index.html')
+    return render(request, template_name='pages/index.html')
 
 
 def catalog(request):
-    return render(request, template_name='catalog.html')
+    return render(request, template_name='pages/catalog.html')
 
 
 def recommendations(request):
@@ -14,7 +14,7 @@ def recommendations(request):
 
 
 def contacts(request):
-    pass
+    return render(request, template_name='pages/catalog.html')
 
 
 def selection_flowers(request):
