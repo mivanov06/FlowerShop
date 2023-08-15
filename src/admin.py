@@ -1,3 +1,23 @@
 from django.contrib import admin
 
-# Register your models here.
+from src.models import Event, Client, Bouquet, Order
+
+
+@admin.register(Event)
+class EventAdmin(admin.ModelAdmin):
+    ...
+
+
+@admin.register(Client)
+class ClientAdmin(admin.ModelAdmin):
+    ...
+
+
+@admin.register(Bouquet)
+class BouquetAdmin(admin.ModelAdmin):
+    ...
+
+
+@admin.register(Order)
+class OrderAdmin(admin.ModelAdmin):
+    ...
