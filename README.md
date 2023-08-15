@@ -23,7 +23,7 @@ poetry install
 Обязательно задать переменную окружения `TG_BOT_TOKEN`.  
 `TG_BOT_TOKEN` - токен телеграм бота. Получить можно у https://t.me/BotFather
 ```shell
-poetry run python namage.py tg_bot
+poetry run python manage.py tg_bot
 ```
 
 Данное описание является стартовым, нужно для старта работы над проектом.  
