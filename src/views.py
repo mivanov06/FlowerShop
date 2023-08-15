@@ -21,5 +21,5 @@ def selection_flowers(request):
     pass
 
 
-def orders(request):
-    pass
+def order(request):
+    return render(request, template_name='pages/order.html')
