@@ -14,7 +14,7 @@ def recommendations(request):
 
 
 def contacts(request):
-    return render(request, template_name='pages/catalog.html')
+    return render(request, template_name='pages/contacts.html')
 
 
 def selection_flowers(request):
