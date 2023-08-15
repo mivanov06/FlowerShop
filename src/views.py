@@ -6,7 +6,7 @@ def index(request):
 
 
 def catalog(request):
-    pass
+    return render(request, template_name='catalog.html')
 
 
 def recommendations(request):
