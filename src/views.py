@@ -17,8 +17,8 @@ def contacts(request):
     return render(request, template_name='pages/contacts.html')
 
 
-def selection_flowers(request):
-    pass
+def bouquet_card(request, pk):
+    return render(request, template_name='pages/card.html')
 
 
 def order(request):
