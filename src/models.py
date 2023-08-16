@@ -56,6 +56,14 @@ class Bouquet(models.Model):
         'Состав',
         max_length=5000
     )
+    height = models.IntegerField(
+        'Высота',
+        default=30
+    )
+    width = models.IntegerField(
+        'Ширина',
+        default=30
+    )
     events = models.ManyToManyField(
         Event,
         verbose_name='Для событий',
@@ -71,14 +79,10 @@ class Bouquet(models.Model):
 
 
 class Order(models.Model):
-    STATUS = (
-        ('in_delivery', 'В доставке'),
-        ('delivered', 'Доставлен')
-    )
     bouquet = models.ForeignKey(
         Bouquet,
         verbose_name='Заказанный букет',
-        on_delete=models.DO_NOTHING,
+        on_delete=models.CASCADE,
         related_name='orders'
     )
     price = models.IntegerField(
@@ -87,7 +91,7 @@ class Order(models.Model):
     client = models.ForeignKey(
         Client,
         verbose_name='Клиент',
-        on_delete=models.DO_NOTHING,
+        on_delete=models.CASCADE,
         related_name='orders'
     )
     delivery_date = models.DateField(
@@ -100,6 +104,11 @@ class Order(models.Model):
     address = models.CharField(
         'Адрес доставки',
         max_length=1000
+    )
+    status = models.BooleanField(
+        'Заказ доставлен',
+        db_index=True,
+        default=False
     )
     comment = models.CharField(
         'Комментарий',
@@ -114,3 +123,24 @@ class Order(models.Model):
 
     def __str__(self):
         return f'{self.bouquet} - {self.address}'
+
+
+class Consultation(models.Model):
+    client = models.ForeignKey(
+        Client,
+        verbose_name='Клиент',
+        on_delete=models.CASCADE,
+        related_name='consultations'
+    )
+    status = models.BooleanField(
+        'Консультация проведена',
+        db_index=True,
+        default=False
+    )
+
+    class Meta:
+        verbose_name = 'Консультация'
+        verbose_name_plural = 'Консультации'
+
+    def __str__(self):
+        return f'{self.client.name} - {self.client.phonenumber}'
