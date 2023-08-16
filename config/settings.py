@@ -18,6 +18,8 @@ ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', ['127.0.0.1', 'localhost'])
 
 TG_BOT_TOKEN = env.str('TG_BOT_TOKEN', '')
 
+CSRF_TRUSTED_ORIGINS = env.list('CSRF_TRUSTED_ORIGINS', ['http://localhost:1337'])
+
 # Application definition
 
 INSTALLED_APPS = [
