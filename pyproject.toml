@@ -16,6 +16,7 @@ pillow = "^10.0.0"
 python-telegram-bot = "13.15"
 django-phonenumber-field = "^7.1.0"
 django-phonenumbers = "^1.0.1"
+psycopg2-binary = "^2.9.7"
 
 
 [build-system]
