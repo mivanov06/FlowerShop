@@ -14,7 +14,6 @@ def catalog(request):
 def recommendations(request):
     step = 1
     events = Event.objects.all()
-
     event = request.session.get('event')
     price = request.session.get('price')
     bouquet = None
