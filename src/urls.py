@@ -9,5 +9,5 @@ urlpatterns = [
     path('recommendations/', views.recommendations, name='recommendations'),
     path('contacts/', views.contacts, name='contacts'),
     path('bouquet/<int:pk>', views.bouquet_card, name='bouquet_card'),
-    path('order/', views.order, name='order'),
+    path('order/bouquet/<int:pk>', views.order, name='order'),
 ]
