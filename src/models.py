@@ -70,6 +70,9 @@ class Bouquet(models.Model):
         related_name='bouquet'
     )
 
+    def compound_as_list(self):
+        return self.compound.split(',')
+
     class Meta:
         verbose_name = 'Букет'
         verbose_name_plural = 'Букеты'

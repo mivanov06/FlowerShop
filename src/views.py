@@ -74,7 +74,12 @@ def contacts(request):
 
 
 def bouquet_card(request, pk):
-    return render(request, template_name='pages/card.html')
+    bouquet = get_object_or_404(Bouquet, pk=pk)
+    return render(
+        request,
+        template_name='pages/card.html',
+        context={'bouquet': bouquet}
+    )
 
 
 def order(request, pk):
