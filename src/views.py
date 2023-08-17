@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 
 from config.settings import MEDIA_URL, MEDIA_ROOT
 from src.models import Event, Bouquet
@@ -23,9 +23,15 @@ def index(request):
 
 
 def catalog(request):
-    bouquets = Bouquet.objects.all()
+    events = Event.objects.all()
+    event = request.POST.get("event", False)
+    if event:
+        bouquets = Bouquet.objects.filter(events__in=event)
+    else:
+        bouquets = Bouquet.objects.all()
     context = {
-        'bouquets': catalog_bouquets_serialize(bouquets)
+        'bouquets': catalog_bouquets_serialize(bouquets),
+        'events': events
     }
 
     return render(request, template_name='pages/catalog.html', context=context)
