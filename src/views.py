@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.shortcuts import get_object_or_404
 
-from src.models import Event
+from src.models import Event, TIME_SLOT
 from src.models import Bouquet
 from src.utils import get_recommended_bouquet
 
@@ -85,4 +85,4 @@ def bouquet_card(request, pk):
 
 
 def order(request, pk):
-    return render(request, template_name='pages/order.html')
+    return render(request, template_name='pages/order.html', context={'times': TIME_SLOT})
