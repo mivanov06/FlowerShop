@@ -1,6 +1,21 @@
 from django.shortcuts import render
 
+from config.settings import MEDIA_URL, MEDIA_ROOT
 from src.models import Event, Bouquet
+
+
+def catalog_bouquets_serialize(bouquets):
+    serialized = []
+    for bouquet in bouquets:
+        serialized.append(
+            {
+                'pk': bouquet.pk,
+                'name': bouquet.name,
+                'image_url': bouquet.image.url,
+                'price': bouquet.price
+            }
+        )
+    return serialized
 
 
 def index(request):
@@ -8,7 +23,12 @@ def index(request):
 
 
 def catalog(request):
-    return render(request, template_name='pages/catalog.html')
+    bouquets = Bouquet.objects.all()
+    context = {
+        'bouquets': catalog_bouquets_serialize(bouquets)
+    }
+
+    return render(request, template_name='pages/catalog.html', context=context)
 
 
 def recommendations(request):
