@@ -1,6 +1,21 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 
+from config.settings import MEDIA_URL, MEDIA_ROOT
 from src.models import Event, Bouquet
+
+
+def catalog_bouquets_serialize(bouquets):
+    serialized = []
+    for bouquet in bouquets:
+        serialized.append(
+            {
+                'pk': bouquet.pk,
+                'name': bouquet.name,
+                'image_url': bouquet.image.url,
+                'price': bouquet.price
+            }
+        )
+    return serialized
 
 
 def index(request):
@@ -8,7 +23,18 @@ def index(request):
 
 
 def catalog(request):
-    return render(request, template_name='pages/catalog.html')
+    events = Event.objects.all()
+    event = request.POST.get("event", False)
+    if event:
+        bouquets = Bouquet.objects.filter(events__in=event)
+    else:
+        bouquets = Bouquet.objects.all()
+    context = {
+        'bouquets': catalog_bouquets_serialize(bouquets),
+        'events': events
+    }
+
+    return render(request, template_name='pages/catalog.html', context=context)
 
 
 def recommendations(request):

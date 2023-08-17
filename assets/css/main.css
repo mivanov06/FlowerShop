@@ -182,6 +182,9 @@ bottom: 0;
 .recommended__block_elems {
 	width: 100%;
 	padding: 15px;
+	margin-left: 5px;
+	margin-right: 5px;
+	margin-bottom: 10px;
 }
 .recommended__btn {
 	width: 100%;
@@ -325,9 +328,9 @@ opacity: 0.3;
 
 
 /*catalog.html*/
-/*.catalog__block .recommended__elems {
+.catalog__block .recommended__elems {
 	flex-wrap: wrap;
-} */
+}
 .catalog__block .recommended__elems {
 	margin-bottom: 10px;
 }
