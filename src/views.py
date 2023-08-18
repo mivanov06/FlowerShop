@@ -1,7 +1,9 @@
+import phonenumbers
 from django.shortcuts import render
 from django.shortcuts import get_object_or_404
+from phonenumber_field.phonenumber import PhoneNumber
 
-from src.models import Event, TIME_SLOT
+from src.models import Event, TIME_SLOT, Client, Order
 from src.models import Bouquet
 from src.utils import get_recommended_bouquet
 
@@ -85,4 +87,35 @@ def bouquet_card(request, pk):
 
 
 def order(request, pk):
-    return render(request, template_name='pages/order.html', context={'times': TIME_SLOT})
+    order = None
+    error = None
+    if request.method == 'POST':
+        try:
+            bouquet = Bouquet.objects.get(id=pk)
+            customer_name = request.POST.get('fname')
+            customer_phone = PhoneNumber.from_string(
+                phone_number=request.POST.get('tel'),
+                region='RU').as_e164
+            customer_address = request.POST.get('address')
+            delivery_time_slot = request.POST.get('orderTime')
+
+            client, _ = Client.objects.update_or_create(
+                name=customer_name,
+                phonenumber=customer_phone,
+            )
+
+            order = Order.objects.create(
+                bouquet=bouquet,
+                price=bouquet.price,
+                client=client,
+                delivery_time=delivery_time_slot,
+                address=customer_address
+
+            )
+        except phonenumbers.phonenumberutil.NumberParseException:
+            error = 'Не правильный номер. Формат + 7 (999) 000 00 00'
+    return render(
+        request,
+        template_name='pages/order.html',
+        context={'times': TIME_SLOT, 'order': order, 'error': error}
+    )
