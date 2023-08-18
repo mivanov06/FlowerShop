@@ -1,5 +1,3 @@
-from datetime import datetime
-
 from django.db import models
 from phonenumber_field.modelfields import PhoneNumberField
 
@@ -115,7 +113,7 @@ class Order(models.Model):
     )
     delivery_date = models.DateField(
         'Дата доставки',
-        default=datetime.now().date(),
+        auto_now_add=True,
         db_index=True
     )
     delivery_slot = models.IntegerField(

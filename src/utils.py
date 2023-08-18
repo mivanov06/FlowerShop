@@ -10,6 +10,10 @@ def get_recommended_bouquet(event: int, price: tuple):
         events__id=event,
         price__range=price
     ).aggregate(max_id=Max("id"))['max_id']
+
+    if not max_id:
+        return
+
     while True:
         pk = random.randint(1, max_id)
         bouquet = Bouquet.objects.filter(pk=pk).first()
