@@ -119,6 +119,7 @@ def order(request, pk):
     order = None
     error = None
     if request.method == 'POST':
+        print('GJGFK')
         try:
             bouquet = Bouquet.objects.get(id=pk)
             customer_name = request.POST.get('fname')
@@ -133,7 +134,6 @@ def order(request, pk):
                 name=customer_name,
                 phonenumber=customer_phone,
             )
-
             order = Order.objects.create(
                 bouquet=bouquet,
                 price=bouquet.price,
@@ -142,6 +142,7 @@ def order(request, pk):
                 address=customer_address
 
             )
+            print(order)
         except phonenumbers.phonenumberutil.NumberParseException:
             error = 'Не правильный номер. Формат + 7 (999) 000 00 00'
     return render(

@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from src.models import Event, Client, Bouquet, Order, Consultation, ActiveOrder
+from src.models import Event, Client, Bouquet, Order, Consultation
 
 
 @admin.register(Event)
@@ -33,6 +33,6 @@ class ConsultationAdmin(admin.ModelAdmin):
     ...
 
 
-@admin.register(ActiveOrder)
-class ActiveOrderAdmin(admin.ModelAdmin):
-    ...
+# @admin.register(ActiveOrder)
+# class ActiveOrderAdmin(admin.ModelAdmin):
+#     ...
