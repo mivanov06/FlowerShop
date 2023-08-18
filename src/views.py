@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.shortcuts import get_object_or_404
 
-from src.models import Event, TIME_SLOT
+from src.models import Event, TIME_SLOT, Client, Consultation
 from src.models import Bouquet
 from src.utils import get_recommended_bouquet
 
@@ -21,6 +21,12 @@ def catalog_bouquets_serialize(bouquets):
 
 
 def index(request):
+    if request.method == 'POST':
+        fname = request.POST['fname']
+        tel = request.POST['tel']
+        client, _ = Client.objects.get_or_create(name=fname, phonenumber=tel)
+        consultation = Consultation.objects.create(client=client, status=False)
+
     return render(request, template_name='pages/index.html')
 
 
