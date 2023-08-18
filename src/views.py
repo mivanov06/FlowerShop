@@ -1,26 +1,19 @@
 import phonenumbers
-from django.shortcuts import render
-from django.shortcuts import get_object_or_404
+
 from phonenumber_field.phonenumber import PhoneNumber
 
-from src.models import Event, TIME_SLOT, Client, Order, Consultation
+from django.shortcuts import render
+from django.shortcuts import get_object_or_404
 
+from src.models import Event
+from src.models import TIME_SLOT
+from src.models import Client
+from src.models import Order
+from src.models import Consultation
 from src.models import Bouquet
+
 from src.utils import get_recommended_bouquet
-
-
-def catalog_bouquets_serialize(bouquets):
-    serialized = []
-    for bouquet in bouquets:
-        serialized.append(
-            {
-                'pk': bouquet.pk,
-                'name': bouquet.name,
-                'image_url': bouquet.image.url,
-                'price': bouquet.price
-            }
-        )
-    return serialized
+from src.utils import catalog_bouquets_serialize
 
 
 def index(request):

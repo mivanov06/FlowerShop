@@ -15,3 +15,17 @@ def get_recommended_bouquet(event: int, price: tuple):
         bouquet = Bouquet.objects.filter(pk=pk).first()
         if bouquet:
             return bouquet
+
+
+def catalog_bouquets_serialize(bouquets):
+    serialized = []
+    for bouquet in bouquets:
+        serialized.append(
+            {
+                'pk': bouquet.pk,
+                'name': bouquet.name,
+                'image_url': bouquet.image.url,
+                'price': bouquet.price
+            }
+        )
+    return serialized
