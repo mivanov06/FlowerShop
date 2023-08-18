@@ -749,3 +749,15 @@ color: #2D2D2D;
 
 opacity: 0.3;
 }
+
+.catalog__price {
+    background-color: white;
+    opacity: .8;
+}
+a.catalog__card {
+    cursor: pointer;
+    transition: all .2s ease;
+    text-decoration: none;
+    color: #000000;
+	margin-top: 15px;
+}

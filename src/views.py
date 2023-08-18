@@ -1,7 +1,9 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render
+from django.shortcuts import get_object_or_404
 
-from config.settings import MEDIA_URL, MEDIA_ROOT
-from src.models import Event, Bouquet
+from src.models import Event, TIME_SLOT
+from src.models import Bouquet
+from src.utils import get_recommended_bouquet
 
 
 def catalog_bouquets_serialize(bouquets):
@@ -55,7 +57,7 @@ def recommendations(request):
     if request.method == 'POST' and event and not price:
         request.session['price'] = request.POST.get('price')
         price = request.POST.get('price').split('-')
-        bouquet = Bouquet.objects.filter(price__range=tuple(price)).first()
+        bouquet = get_recommended_bouquet(int(event), tuple(price))
         step = 3
 
     return render(
@@ -74,8 +76,13 @@ def contacts(request):
 
 
 def bouquet_card(request, pk):
-    return render(request, template_name='pages/card.html')
+    bouquet = get_object_or_404(Bouquet, pk=pk)
+    return render(
+        request,
+        template_name='pages/card.html',
+        context={'bouquet': bouquet}
+    )
 
 
 def order(request, pk):
-    return render(request, template_name='pages/order.html')
+    return render(request, template_name='pages/order.html', context={'times': TIME_SLOT})
