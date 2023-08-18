@@ -138,7 +138,7 @@ def order(request, pk):
                 bouquet=bouquet,
                 price=bouquet.price,
                 client=client,
-                delivery_time=delivery_time_slot,
+                delivery_slot=delivery_time_slot,
                 address=customer_address
 
             )

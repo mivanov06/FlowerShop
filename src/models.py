@@ -118,7 +118,7 @@ class Order(models.Model):
         default=datetime.now().date(),
         db_index=True
     )
-    delivery_time = models.IntegerField(
+    delivery_slot = models.IntegerField(
         'Время доставки',
         choices=TIME_SLOT
     )
