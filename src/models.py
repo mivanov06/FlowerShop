@@ -113,6 +113,7 @@ class Order(models.Model):
     )
     delivery_date = models.DateField(
         'Дата доставки',
+        auto_now_add=True,
         db_index=True
     )
     delivery_time = models.IntegerField(
