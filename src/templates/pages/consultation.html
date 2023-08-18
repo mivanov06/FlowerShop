@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+  {% if consultation %}
+    <section id="singUpConsultation">
+      <div class="container">
+        <div class="title">Заявка на консультацию принята.</div>
+        <div class="title">Свами свяжутся в ближайшее время.</div>
+        <div class="singUpConsultation">
+          <div class="blockImgHiden"></div>
+        </div>
+      </div>
+      <img src="{% static 'img/singUpConsultationImg.jpg' %}" alt="singUpConsultationImg"
+           class="singUpConsultation__img">
+    </section>
+  {% endif %}
+
+  {% if not consultation or error %}
+    <section id="singUpConsultation">
+      <div class="container">
+        <div class="singUpConsultation">
+          <form action="{% url 'consultation' %}" method="post" class="singUpConsultation__form">
+            {% csrf_token %}
+            <div class="title">Запись на консультацию</div>
+            {% if error %}
+              <div style="color: red; margin-bottom: 5px"> - {{ error }}</div>
+            {% endif %}
+            <input type="text" name="fname" class="order__form_input" placeholder="Введите Имя" required>
+            <input type="text" name="tel" class="order__form_input" placeholder="+ 7 (999) 000 00 00" required>
+            <div class="chekbox fic">
+              <input type="checkbox" class="singUpConsultation__ckekbox" checked required>
+              <span class="chekbox__intro">Я согласен(а) с политикой конфидециоальности</span>
+            </div>
+            <button class="btn singUpConsultation__form_btn">Отправить</button>
+          </form>
+          <div class="blockImgHiden"></div>
+        </div>
+      </div>
+      <img src="{% static 'img/singUpConsultationImg.jpg' %}" alt="singUpConsultationImg"
+           class="singUpConsultation__img">
+    </section>
+  {% endif %}
+{% endblock %}

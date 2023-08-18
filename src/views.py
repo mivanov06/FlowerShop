@@ -24,13 +24,36 @@ def catalog_bouquets_serialize(bouquets):
 
 
 def index(request):
-    if request.method == 'POST':
-        fname = request.POST['fname']
-        tel = request.POST['tel']
-        client, _ = Client.objects.get_or_create(name=fname, phonenumber=tel)
-        consultation = Consultation.objects.create(client=client, status=False)
-
     return render(request, template_name='pages/index.html')
+
+
+def consultation(request):
+    consultation = None
+    error = ''
+    if request.method == 'POST':
+        try:
+            name = request.POST.get('fname')
+            tel = PhoneNumber.from_string(
+                phone_number=request.POST.get('tel'),
+                region='RU'
+            ).as_e164
+
+            client, _ = Client.objects.get_or_create(
+                name=name,
+                phonenumber=tel
+            )
+            consultation = Consultation.objects.create(
+                client=client,
+                status=False
+            )
+        except phonenumbers.phonenumberutil.NumberParseException:
+            error = 'Не правильный номер. Формат + 7 (999) 000 00 00'
+
+    return render(
+        request,
+        template_name='pages/consultation.html',
+        context={'consultation': consultation, 'error': error},
+    )
 
 
 def catalog(request):
@@ -102,7 +125,8 @@ def order(request, pk):
             customer_name = request.POST.get('fname')
             customer_phone = PhoneNumber.from_string(
                 phone_number=request.POST.get('tel'),
-                region='RU').as_e164
+                region='RU'
+            ).as_e164
             customer_address = request.POST.get('address')
             delivery_time_slot = request.POST.get('orderTime')
 
