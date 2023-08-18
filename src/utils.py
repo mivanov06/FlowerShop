@@ -29,3 +29,20 @@ def catalog_bouquets_serialize(bouquets):
             }
         )
     return serialized
+
+
+def get_random_bouquets(quantity: int = 3):
+    choices_pk = []
+    max_id = Bouquet.objects.aggregate(max_id=Max("id"))['max_id']
+    random_bouquets = []
+
+    while len(random_bouquets) < quantity:
+        pk = random.randint(1, max_id)
+        if pk in choices_pk:
+            continue
+        bouquet = Bouquet.objects.filter(pk=pk).first()
+        if bouquet:
+            random_bouquets.append(bouquet)
+            choices_pk.append(bouquet.pk)
+
+    return random_bouquets

@@ -12,12 +12,18 @@ from src.models import Order
 from src.models import Consultation
 from src.models import Bouquet
 
+from src.utils import get_random_bouquets
 from src.utils import get_recommended_bouquet
 from src.utils import catalog_bouquets_serialize
 
 
 def index(request):
-    return render(request, template_name='pages/index.html')
+    bouquets = get_random_bouquets()
+    return render(
+        request,
+        template_name='pages/index.html',
+        context={'bouquets': bouquets},
+    )
 
 
 def consultation(request):
