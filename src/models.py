@@ -90,6 +90,11 @@ class Bouquet(models.Model):
         return self.name
 
 
+class OrderQuerySet(models.QuerySet):
+    def is_activity(self):
+        return self.filter(status=True)
+
+
 class Order(models.Model):
     bouquet = models.ForeignKey(
         Bouquet,
@@ -137,6 +142,16 @@ class Order(models.Model):
 
     def __str__(self):
         return f'{self.bouquet} - {self.address}'
+
+    object = OrderQuerySet.as_manager()
+
+
+class ActiveOrder(Order):
+    class Meta:
+        proxy = True
+
+    def get_queryset(self):
+        return self.object.is_activity()
 
 
 class Consultation(models.Model):
