@@ -57,7 +57,7 @@ class Migration(migrations.Migration):
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('price', models.IntegerField(verbose_name='Цена букета')),
                 ('delivery_date', models.DateField(db_index=True, verbose_name='Дата доставки')),
-                ('delivery_time', models.TimeField(verbose_name='Время доставки')),
+                ('delivery_time', models.IntegerField(verbose_name='Время доставки')),
                 ('address', models.CharField(max_length=1000, verbose_name='Адрес доставки')),
                 ('comment', models.CharField(blank=True, default='', max_length=1000, verbose_name='Комментарий')),
                 ('bouquet', models.ForeignKey(on_delete=django.db.models.deletion.DO_NOTHING, related_name='orders', to='src.bouquet', verbose_name='Заказанный букет')),
