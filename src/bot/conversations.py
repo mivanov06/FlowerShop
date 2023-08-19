@@ -22,7 +22,8 @@ customer_conversation = ConversationHandler(
             MessageHandler(
                 Filters.text([
                     'День рождения',
-                    'Свадьба',
+                    'На свадьбу',
+                    'На свидание',
                     'Другое'
                 ]),
                 handlers.amount_choice,
@@ -85,6 +86,13 @@ customer_conversation = ConversationHandler(
             MessageHandler(
                 Filters.text(['Да', 'Нет']),
                 handlers.create_order,
+                pass_user_data=True,
+            ),
+        ],
+        CustomerState.CONSULTATION: [
+            MessageHandler(
+                Filters.text,
+                handlers.process_consultation_choice,
                 pass_user_data=True,
             ),
         ],

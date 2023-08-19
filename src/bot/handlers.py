@@ -13,11 +13,14 @@ from telegram.ext import ConversationHandler
 from src.bot import utils
 from src.bot.states import CustomerState
 
+from src.models import Bouquet, Order, Consultation, Client
+
 
 def start_for_customer(update: Update, context: CallbackContext):
     button_names = [
         'День рождения',
-        'Свадьба',
+        'На свадьбу',
+        'На свидание',
         'Другое'
     ]
     context.bot.send_message(
@@ -26,13 +29,15 @@ def start_for_customer(update: Update, context: CallbackContext):
              'Выберите один из вариантов, либо укажите свой',
         reply_markup=utils.create_tg_keyboard_markup(
             button_names,
-            buttons_per_row=2,
+            buttons_per_row=3,
         )
     )
     return CustomerState.AMOUNT_CHOICE
 
 
 def amount_choice(update: Update, context: CallbackContext):
+    user_data = context.user_data
+    user_data['event'] = update.message.text
     button_names = [
         '500',
         '1000',
@@ -51,23 +56,49 @@ def amount_choice(update: Update, context: CallbackContext):
 
 
 def get_bouquet_flowers(update: Update, context: CallbackContext):
+    user_data = context.user_data
+    user_data['amount'] = update.message.text
+
+    if user_data['amount'] == 'не важно':
+        user_data['amount'] = 1000000
+
+    if user_data['event'] == 'Другое':
+        bouquets = Bouquet.objects.filter(
+            price__lte=user_data['amount']
+            )
+
+    if update.message.text == 'Посмотреть всю коллекцию':
+        bouquets = Bouquet.objects.all()
+
+    else:
+        bouquets = Bouquet.objects.filter(
+            events__name=user_data['event'],
+            price__lte=user_data['amount']
+            )
+
+    if not bouquets:
+        context.bot.send_message(
+            chat_id=update.effective_chat.id,
+            text='Нет подходящего букета :('
+        )
+
+    for bouquet in bouquets:
+        context.bot.send_photo(
+            chat_id=update.effective_chat.id,
+            photo=bouquet.image,
+            caption=f'Описание:\n{bouquet.description}\n\n'
+            f'{bouquet.compound}\n\nСтоимость:\n{bouquet.price}',
+            reply_markup=InlineKeyboardMarkup(
+                [
+                    [InlineKeyboardButton("Оплата", callback_data='payment')]
+                ]
+            )
+        )
+
     button_names = [
         'Заказать консультацию',
         'Посмотреть всю коллекцию'
     ]
-
-    context.bot.send_photo(
-        chat_id=update.effective_chat.id,
-        photo='https://storage.florist.ru/cdn-cgi/image/format=webp/f/get'
-              '/content/bouquet/e5/21/_eaf70d5d55124889c9bb2633eb14/800x800'
-              '/6268e7407ce08.jpg',
-        caption='Cлучайный букет \n Описание букета \nстоимость',
-        reply_markup=InlineKeyboardMarkup(
-            [
-                [InlineKeyboardButton("Оплата", callback_data='payment')]
-            ]
-        )
-    )
 
     context.bot.send_message(
         chat_id=update.effective_chat.id,
@@ -100,6 +131,24 @@ def choice_bouquet(update: Update, context: CallbackContext):
         return CustomerState.CONSULTATION
 
     return get_bouquet_flowers(update, context)
+
+
+def process_consultation_choice(update: Update, context: CallbackContext):
+    user_data = context.user_data
+    user_data['name'] = update.message.from_user.username
+    user_data['phone'] = update.message.text
+    context.bot.send_message(
+        chat_id=update.effective_chat.id,
+        text='Спасибо, ваша заявка на консультацию принята, '
+             'мы скоро свяжемся с вами',
+    )
+    client, _ = Client.objects.get_or_create(
+        name=user_data['name'],
+        phonenumber=user_data['phone']
+    )
+    Consultation.objects.create(client=client)
+
+    return ConversationHandler.END
 
 
 def get_customer_address(update: Update, context: CallbackContext):
@@ -195,8 +244,8 @@ def create_order(update: Update, context: CallbackContext):
 
 def cancel(update, _):
     update.message.reply_text(
-        'Спасибо за уделенное Вами время'
-        'Если хотите продолжить работу введите команду'
+        'Спасибо за уделенное Вами время\n'
+        'Если хотите продолжить работу введите команду\n'
         '/start',
         reply_markup=ReplyKeyboardRemove()
     )
