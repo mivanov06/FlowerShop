@@ -13,7 +13,7 @@ from telegram.ext import ConversationHandler
 from src.bot import utils
 from src.bot.states import CustomerState
 
-from src.models import Bouquet, Order, Consultation
+from src.models import Bouquet, Order, Consultation, Client
 
 
 def start_for_customer(update: Update, context: CallbackContext):
@@ -127,6 +127,22 @@ def choice_bouquet(update: Update, context: CallbackContext):
         return CustomerState.CONSULTATION
 
     return get_bouquet_flowers(update, context)
+
+
+def process_consultation_choice(update: Update, context: CallbackContext):
+    user_data = context.user_data
+    user_data['name'] = update.message.from_user.username
+    user_data['phone'] = update.message.text
+    context.bot.send_message(
+        chat_id=update.effective_chat.id,
+        text='Спасибо, ваша заявка на консультацию принята, '
+             'мы скоро свяжемся с вами',
+    )
+    client, _ = Client.objects.get_or_create(
+        name=user_data['name'],
+        phonenumber=user_data['phone']
+    )
+    Consultation.objects.create(client=client)
 
 
 def get_customer_address(update: Update, context: CallbackContext):

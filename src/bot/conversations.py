@@ -89,6 +89,13 @@ customer_conversation = ConversationHandler(
                 pass_user_data=True,
             ),
         ],
+        CustomerState.CONSULTATION: [
+            MessageHandler(
+                Filters.text,
+                handlers.process_consultation_choice,
+                pass_user_data=True,
+            ),
+        ],
     },
     fallbacks=[
         CommandHandler('cancel', handlers.cancel),
