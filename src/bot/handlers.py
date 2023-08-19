@@ -66,6 +66,10 @@ def get_bouquet_flowers(update: Update, context: CallbackContext):
         bouquets = Bouquet.objects.filter(
             price__lte=user_data['amount']
             )
+
+    if update.message.text == 'Посмотреть всю коллекцию':
+        bouquets = Bouquet.objects.all()
+
     else:
         bouquets = Bouquet.objects.filter(
             events__name=user_data['event'],
@@ -143,6 +147,8 @@ def process_consultation_choice(update: Update, context: CallbackContext):
         phonenumber=user_data['phone']
     )
     Consultation.objects.create(client=client)
+
+    return ConversationHandler.END
 
 
 def get_customer_address(update: Update, context: CallbackContext):
@@ -238,8 +244,8 @@ def create_order(update: Update, context: CallbackContext):
 
 def cancel(update, _):
     update.message.reply_text(
-        'Спасибо за уделенное Вами время'
-        'Если хотите продолжить работу введите команду'
+        'Спасибо за уделенное Вами время\n'
+        'Если хотите продолжить работу введите команду\n'
         '/start',
         reply_markup=ReplyKeyboardRemove()
     )
