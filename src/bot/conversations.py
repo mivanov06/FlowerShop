@@ -22,7 +22,8 @@ customer_conversation = ConversationHandler(
             MessageHandler(
                 Filters.text([
                     'День рождения',
-                    'Свадьба',
+                    'На свадьбу',
+                    'На свидание',
                     'Другое'
                 ]),
                 handlers.amount_choice,
