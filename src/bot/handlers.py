@@ -90,7 +90,8 @@ def get_bouquet_flowers(update: Update, context: CallbackContext):
             f'{bouquet.compound}\n\nСтоимость:\n{bouquet.price}',
             reply_markup=InlineKeyboardMarkup(
                 [
-                    [InlineKeyboardButton("Оплата", callback_data='payment')]
+                    [InlineKeyboardButton("Оплата",
+                                          callback_data=f'payment{bouquet.id}')]
                 ]
             )
         )
@@ -113,7 +114,9 @@ def get_bouquet_flowers(update: Update, context: CallbackContext):
 
 
 def start_payment(update: Update, context: CallbackContext):
-    if update.callback_query.data == 'payment':
+    if update.callback_query.data.startswith('payment'):
+        user_data = context.user_data
+        user_data['bouquet_id'] = update.callback_query.data[7:]
         context.bot.send_message(
             chat_id=update.effective_chat.id,
             text='Как вас зовут?'
@@ -136,7 +139,7 @@ def choice_bouquet(update: Update, context: CallbackContext):
 def process_consultation_choice(update: Update, context: CallbackContext):
     user_data = context.user_data
     user_data['name'] = update.message.from_user.username
-    user_data['phone'] = update.message.text
+    user_data['phonenumber'] = update.message.text
     context.bot.send_message(
         chat_id=update.effective_chat.id,
         text='Спасибо, ваша заявка на консультацию принята, '
@@ -144,7 +147,7 @@ def process_consultation_choice(update: Update, context: CallbackContext):
     )
     client, _ = Client.objects.get_or_create(
         name=user_data['name'],
-        phonenumber=user_data['phone']
+        phonenumber=user_data['phonenumber']
     )
     Consultation.objects.create(client=client)
 
@@ -152,6 +155,8 @@ def process_consultation_choice(update: Update, context: CallbackContext):
 
 
 def get_customer_address(update: Update, context: CallbackContext):
+    user_data = context.user_data
+    user_data['name'] = update.message.text
     context.bot.send_message(
         chat_id=update.effective_chat.id,
         text='Введите Ваш адрес',
@@ -160,6 +165,8 @@ def get_customer_address(update: Update, context: CallbackContext):
 
 
 def get_phone_number(update: Update, context: CallbackContext):
+    user_data = context.user_data
+    user_data['address'] = update.message.text
     context.bot.send_message(
         chat_id=update.effective_chat.id,
         text='Введите Ваш номер телефона',
@@ -167,20 +174,13 @@ def get_phone_number(update: Update, context: CallbackContext):
     return CustomerState.PHONE_NUMBER
 
 
-def get_delivery_time(update: Update, context: CallbackContext):
-    context.bot.send_message(
-        chat_id=update.effective_chat.id,
-        text='Выберите дату и время доставки! '
-             'Введите дату в формате: год-месяц-день час',
-    )
-    return CustomerState.CHECK_INFO
+def get_delivery_date(update: Update, context: CallbackContext):
+    user_data = context.user_data
+    user_data['phonenumber'] = update.message.text
 
-
-def check_customer_information(update: Update, context: CallbackContext):
-    customer = ''
     try:
         parsed_phonenumber = phonenumbers.parse(
-            update.message.text,
+            user_data['phonenumber'],
             'RU'
         )
     except:
@@ -191,7 +191,7 @@ def check_customer_information(update: Update, context: CallbackContext):
         return CustomerState.PHONE_NUMBER
 
     if phonenumbers.is_valid_number(parsed_phonenumber):
-        customer.phone_number = phonenumbers.format_number(
+        user_data['phonenumber'] = phonenumbers.format_number(
             parsed_phonenumber,
             phonenumbers.PhoneNumberFormat.E164
         )
@@ -202,14 +202,61 @@ def check_customer_information(update: Update, context: CallbackContext):
                  'ввести через +7',
         )
         return CustomerState.PHONE_NUMBER
+
+    context.bot.send_message(
+        chat_id=update.effective_chat.id,
+        text='Введите дату доставки в формате: год-месяц-день',
+    )
+    return CustomerState.DELIVERY_DATE
+
+
+def get_delivery_time(update: Update, context: CallbackContext):
+    user_data = context.user_data
+    user_data['delivery_date'] = update.message.text
+
+    try:
+        user_data['delivery_date'] = datetime.datetime.strptime(
+            user_data['delivery_date'],
+            '%Y-%m-%d').date()
+    except:
+        context.bot.send_message(
+            chat_id=update.effective_chat.id,
+            text='Попробуйте ещё раз, например 2023-06-15',
+        )
+        return CustomerState.DELIVERY_DATE
+
+    context.bot.send_message(
+        chat_id=update.effective_chat.id,
+        text='Выберите время доставки:\n'
+             '1. Как можно скорее\n'
+             '2. С 10:00 до 12:00\n'
+             '3. С 12:00 до 14:00\n'
+             '4. С 14:00 до 16:00\n'
+             '5. С 16:00 до 18:00\n'
+             '6. С 18:00 до 20:00'
+             )
+    return CustomerState.CHECK_INFO
+
+
+def check_customer_information(update: Update, context: CallbackContext):
+    user_data = context.user_data
+    user_data['delivery_time'] = update.message.text
+
+    if int(user_data['delivery_time']) not in (1, 2, 3, 4, 5, 6):
+        context.bot.send_message(
+            chat_id=update.effective_chat.id,
+            text='Выберите вариант от 1 до 6',
+        )
+        return CustomerState.CHECK_INFO
+
     button_names = [
         'Да',
         'Нет'
     ]
     context.bot.send_message(
         chat_id=update.effective_chat.id,
-        text=f'Верны ли Ваши данные?\n Адрес: {customer.address} '
-             f'Номер телефона: {update.message.text}',
+        text=f'Верны ли Ваши данные?\n Адрес: {user_data["address"]}\n'
+             f'Номер телефона: {user_data["phonenumber"]}',
         reply_markup=utils.create_tg_keyboard_markup(
             button_names,
             buttons_per_row=2,
@@ -219,26 +266,32 @@ def check_customer_information(update: Update, context: CallbackContext):
 
 
 def create_order(update: Update, context: CallbackContext):
-    order = ''
-    try:
-        delivery_time = datetime.datetime.strptime(
-            update.message.text,
-            '%Y-%m-%d').date()
-        order.delivery_time = delivery_time
-        order.order_end_date = order.delivery_time + datetime.timedelta(
-            days=order
-        )
-    except:
+    user_data = context.user_data
+
+    if update.message.text == 'Нет':
         context.bot.send_message(
             chat_id=update.effective_chat.id,
-            text=f'Попробуйте ещё раз, например 2023-06-15',
-        )
-        return CustomerState.CREATE_ORDER
+            text='Введите Ваш адрес',
+            )
+        return CustomerState.ADDRESS
+
     context.bot.send_message(
         chat_id=update.effective_chat.id,
-        text=f'Спасибо за уделенное время. Информация о доставке \n '
-             f'Для повторной сессии напишите в чат /start',
+        text='Спасибо за уделенное время. Информация о доставке \n '
+             'Для повторной сессии напишите в чат /start',
     )
+    bouquet = Bouquet.objects.get(pk=user_data['bouquet_id'])
+    client, _ = Client.objects.get_or_create(
+        name=user_data['name'],
+        phonenumber=user_data['phonenumber']
+    )
+    Order.objects.create(bouquet=bouquet,
+                         price=bouquet.price,
+                         client=client,
+                         delivery_date=user_data['delivery_date'],
+                         address=user_data['address'],
+                         delivery_slot=int(user_data['delivery_time']),
+                         )
     return ConversationHandler.END
 
 
