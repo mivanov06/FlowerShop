@@ -71,6 +71,13 @@ customer_conversation = ConversationHandler(
         CustomerState.PHONE_NUMBER: [
             MessageHandler(
                 Filters.text,
+                handlers.get_delivery_date,
+                pass_user_data=True,
+            ),
+        ],
+        CustomerState.DELIVERY_DATE: [
+            MessageHandler(
+                Filters.text,
                 handlers.get_delivery_time,
                 pass_user_data=True,
             ),

@@ -12,3 +12,4 @@ class CustomerState(IntEnum):
     PHONE_NUMBER = 8
     CHECK_INFO = 9
     CREATE_ORDER = 10
+    DELIVERY_DATE = 11
