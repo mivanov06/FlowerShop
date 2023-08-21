@@ -5,6 +5,7 @@ from telegram.ext import Filters
 
 from src.bot.states import CustomerState
 from src.bot import handlers
+from src.bot.utils import get_event_list_from_base
 
 customer_conversation = ConversationHandler(
     entry_points=[
@@ -20,12 +21,7 @@ customer_conversation = ConversationHandler(
     states={
         CustomerState.AMOUNT_CHOICE: [
             MessageHandler(
-                Filters.text([
-                    'День рождения',
-                    'На свадьбу',
-                    'На свидание',
-                    'Другое'
-                ]),
+                Filters.text(get_event_list_from_base()),
                 handlers.amount_choice,
                 pass_user_data=True,
             ),

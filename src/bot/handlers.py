@@ -12,17 +12,13 @@ from telegram.ext import ConversationHandler
 
 from src.bot import utils
 from src.bot.states import CustomerState
+from src.bot.utils import get_event_list_from_base
 
 from src.models import Bouquet, Order, Consultation, Client
 
 
 def start_for_customer(update: Update, context: CallbackContext):
-    button_names = [
-        'День рождения',
-        'На свадьбу',
-        'На свидание',
-        'Другое'
-    ]
+    button_names = get_event_list_from_base()
     context.bot.send_message(
         chat_id=update.effective_chat.id,
         text='К какому событию готовимся? \n'

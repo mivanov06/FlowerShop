@@ -1,6 +1,8 @@
 from telegram import KeyboardButton
 from telegram import ReplyKeyboardMarkup
 
+from src.models import Event
+
 
 def create_tg_keyboard_markup(
         buttons_text: list,
@@ -21,3 +23,8 @@ def create_tg_keyboard_markup(
         resize_keyboard=True,
         one_time_keyboard=True
     )
+
+
+def get_event_list_from_base():
+    events = Event.objects.values_list('name', flat=True)
+    return list(events)
