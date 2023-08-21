@@ -14,7 +14,8 @@ from src.bot import utils
 from src.bot.states import CustomerState
 from src.bot.utils import get_event_list_from_base
 
-from src.models import Bouquet, Order, Consultation, Client
+from src.models import Bouquet, Order, Consultation, Client, Event
+from src.utils import get_recommended_bouquet
 
 
 def start_for_customer(update: Update, context: CallbackContext):
@@ -33,13 +34,15 @@ def start_for_customer(update: Update, context: CallbackContext):
 
 def amount_choice(update: Update, context: CallbackContext):
     user_data = context.user_data
-    user_data['event'] = update.message.text
+    event_name = update.message.text
+    user_data['event'] = Event.objects.get(name=event_name)
     button_names = [
-        '500',
-        '1000',
-        '5000',
+        'До 1 000 руб',
+        '1 000 - 5 000 руб',
+        'от 5 000 руб',
         'не важно'
     ]
+
     context.bot.send_message(
         chat_id=update.effective_chat.id,
         text='На какую сумму рассчитываете?',
@@ -53,46 +56,36 @@ def amount_choice(update: Update, context: CallbackContext):
 
 def get_bouquet_flowers(update: Update, context: CallbackContext):
     user_data = context.user_data
-    user_data['amount'] = update.message.text
+    event = user_data['event']
 
-    if user_data['amount'] == 'не важно':
-        user_data['amount'] = 1000000
+    match update.message.text:
+        case 'До 1 000 руб': amounts = '1-1000'
+        case '1 000 - 5 000 руб': amounts = '1000-5000'
+        case 'от 5 000 руб': amounts = '5000-999999999'
+        case _: amounts = '0-999999999'
 
-    if user_data['event'] == 'Другое':
-        bouquets = Bouquet.objects.filter(
-            price__lte=user_data['amount']
-            )
+    bouquet = get_recommended_bouquet(event.id, tuple(amounts.split('-')))
 
-    if update.message.text == 'Посмотреть всю коллекцию':
-        bouquets = Bouquet.objects.all()
-
-    else:
-        bouquets = Bouquet.objects.filter(
-            events__name=user_data['event'],
-            price__lte=user_data['amount']
-            )
-
-    if not bouquets:
+    if not bouquet:
         context.bot.send_message(
             chat_id=update.effective_chat.id,
-            text='Нет подходящего букета :('
+            text='К сожалению нет подходящего букета для вас.\n'
+            'Попробуйте еще раз задать фильтр с начала /start'
         )
+        return ConversationHandler.END
 
-    for bouquet in bouquets:
-        context.bot.send_photo(
-            chat_id=update.effective_chat.id,
-            photo=bouquet.image,
-            caption=f'Описание:\n{bouquet.description}\n\n'
-            f'{bouquet.compound}\n\nСтоимость:\n{bouquet.price}',
-            reply_markup=InlineKeyboardMarkup(
-                [
-                    [InlineKeyboardButton(
-                        'Оплата',
-                        callback_data=f'payment{bouquet.id}'
-                    )]
-                ]
-            )
-        )
+    pay_button = InlineKeyboardButton(
+        'Оплата',
+        callback_data=f'payment{bouquet.id}',
+    )
+    context.bot.send_photo(
+        chat_id=update.effective_chat.id,
+        photo=bouquet.image,
+        reply_markup=InlineKeyboardMarkup([[pay_button]]),
+        caption=f'Описание: {bouquet.description}\n\n'
+                f'Состав: {bouquet.compound}\n\n'
+                f'Стоимость: {bouquet.price}',
+    )
 
     button_names = [
         'Заказать консультацию',
@@ -101,12 +94,9 @@ def get_bouquet_flowers(update: Update, context: CallbackContext):
 
     context.bot.send_message(
         chat_id=update.effective_chat.id,
-        text='Хотите что-то более специальное? Подберите другой букет из '
+        text='Хотите что-то более специальное?\nПодберите другой букет из '
              'нашей коллекции или закажите личную консультацию',
-        reply_markup=utils.create_tg_keyboard_markup(
-            button_names,
-            buttons_per_row=3,
-        )
+        reply_markup=utils.create_tg_keyboard_markup(button_names)
     )
     return CustomerState.CHOICE_BOUQUET
 

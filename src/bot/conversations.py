@@ -29,9 +29,9 @@ customer_conversation = ConversationHandler(
         CustomerState.BOUQUET: [
             MessageHandler(
                 Filters.text([
-                    '500',
-                    '1000',
-                    '5000',
+                    'До 1 000 руб',
+                    '1 000 - 5 000 руб',
+                    'от 5 000 руб',
                     'не важно'
                 ]),
                 handlers.get_bouquet_flowers,
