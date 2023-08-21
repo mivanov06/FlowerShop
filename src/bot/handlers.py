@@ -1,6 +1,7 @@
 import datetime
 
 import phonenumbers
+from django.db.models import Max
 
 from telegram import Update
 from telegram import ReplyKeyboardRemove
@@ -102,6 +103,22 @@ def get_bouquet_flowers(update: Update, context: CallbackContext):
 
 
 def start_payment(update: Update, context: CallbackContext):
+    if update.callback_query.data.startswith('prev'):
+        context.bot.delete_message(
+            chat_id=update.callback_query.message.chat_id,
+            message_id=update.callback_query.message.message_id
+        )
+        bouquet_id = update.callback_query.data.split('_')[1]
+        return view_all_bouquets(update, context, int(bouquet_id) - 1)
+
+    if update.callback_query.data.startswith('next'):
+        context.bot.delete_message(
+            chat_id=update.callback_query.message.chat_id,
+            message_id=update.callback_query.message.message_id
+        )
+        bouquet_id = update.callback_query.data.split('_')[1]
+        return view_all_bouquets(update, context, int(bouquet_id) + 1)
+
     if update.callback_query.data.startswith('payment'):
         user_data = context.user_data
         user_data['bouquet_id'] = update.callback_query.data[7:]
@@ -113,6 +130,9 @@ def start_payment(update: Update, context: CallbackContext):
 
 
 def choice_bouquet(update: Update, context: CallbackContext):
+    if update.message.text == 'Посмотреть всю коллекцию':
+        return view_all_bouquets(update, context)
+
     if update.message.text == 'Заказать консультацию':
         context.bot.send_message(
             chat_id=update.effective_chat.id,
@@ -291,3 +311,42 @@ def cancel(update, _):
         reply_markup=ReplyKeyboardRemove()
     )
     return ConversationHandler.END
+
+
+def view_all_bouquets(
+        update: Update,
+        context: CallbackContext,
+        bouquet_id: int = 1
+):
+    while True:
+        try:
+            bouquet = Bouquet.objects.get(id=bouquet_id)
+            pay_button = InlineKeyboardButton(
+                'Оплата',
+                callback_data=f'payment{bouquet.id}',
+            )
+            prev_button = InlineKeyboardButton(
+                '<<',
+                callback_data=f'prev_{bouquet.id}',
+            )
+            next_button = InlineKeyboardButton(
+                '>>',
+                callback_data=f'next_{bouquet.id}',
+            )
+            first_row_button = [prev_button, pay_button, next_button]
+            buttons = InlineKeyboardMarkup([first_row_button])
+            context.bot.send_photo(
+                    chat_id=update.effective_chat.id,
+                    photo=bouquet.image,
+                    reply_markup=buttons,
+                    caption=f'Описание: {bouquet.description}\n\n'
+                            f'Состав: {bouquet.compound}\n\n'
+                            f'Стоимость: {bouquet.price}',
+            )
+            return
+        except Bouquet.DoesNotExist:
+            max_id = Bouquet.objects.aggregate(max_id=Max("id"))['max_id']
+            if bouquet_id < max_id:
+                bouquet_id += 1
+            else:
+                bouquet_id -= 1
