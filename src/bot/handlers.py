@@ -90,8 +90,10 @@ def get_bouquet_flowers(update: Update, context: CallbackContext):
             f'{bouquet.compound}\n\nСтоимость:\n{bouquet.price}',
             reply_markup=InlineKeyboardMarkup(
                 [
-                    [InlineKeyboardButton("Оплата",
-                                          callback_data=f'payment{bouquet.id}')]
+                    [InlineKeyboardButton(
+                        'Оплата',
+                        callback_data=f'payment{bouquet.id}'
+                    )]
                 ]
             )
         )
@@ -183,7 +185,7 @@ def get_delivery_date(update: Update, context: CallbackContext):
             user_data['phonenumber'],
             'RU'
         )
-    except:
+    except phonenumbers.phonenumberutil.NumberParseException:
         context.bot.send_message(
             chat_id=update.effective_chat.id,
             text='Номер телефона был введен неправильно, повторите попытку',
@@ -218,7 +220,7 @@ def get_delivery_time(update: Update, context: CallbackContext):
         user_data['delivery_date'] = datetime.datetime.strptime(
             user_data['delivery_date'],
             '%Y-%m-%d').date()
-    except:
+    except ValueError:
         context.bot.send_message(
             chat_id=update.effective_chat.id,
             text='Попробуйте ещё раз, например 2023-06-15',
