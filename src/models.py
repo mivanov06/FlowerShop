@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils.datetime_safe import datetime
 from phonenumber_field.modelfields import PhoneNumberField
 
 TIME_SLOT = (
@@ -113,7 +114,8 @@ class Order(models.Model):
     )
     delivery_date = models.DateField(
         'Дата доставки',
-        auto_now_add=True,
+        default=datetime.now,
+        blank=True,
         db_index=True
     )
     delivery_slot = models.IntegerField(
