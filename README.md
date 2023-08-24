@@ -16,7 +16,7 @@
  - установить [poetry](https://python-poetry.org/docs/#installation)
  - скачать код с github
 ```shell
-https://github.com/Stranix/FlowerShop.git
+https://github.com/mivanov06/FlowerShop.git
 ```
  - установить зависимости проекта
 ```shell
